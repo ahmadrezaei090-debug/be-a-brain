@@ -1,1 +1,868 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مغز شو</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #ffd700;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+      50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+    }
+
+    /* Studio Screen */
+    #studio-screen {
+      background: radial-gradient(circle, #000000 0%, #1a1a1a 100%);
+      flex-direction: column;
+    }
+
+    .studio-logo {
+      font-size: 4rem;
+      font-weight: bold;
+      background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: pulse 2s ease-in-out infinite, shimmer 3s ease-in-out infinite;
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    }
+
+    @keyframes shimmer {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .studio-subtitle {
+      margin-top: 1.5rem;
+      font-size: 1.5rem;
+      color: #999;
+      animation: slideUp 1s ease-out 0.5s both;
+    }
+
+    /* Loading Screen */
+    #loading-screen {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      flex-direction: column;
+    }
+
+    .loading-logo {
+      width: 120px;
+      height: 120px;
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .brain-icon {
+      width: 100%;
+      height: 100%;
+      animation: rotate 3s linear infinite;
+    }
+
+    .loading-bar-container {
+      width: 300px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .loading-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ffd700, #ffed4e);
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    }
+
+    .loading-text {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      color: #ffd700;
+    }
+
+    /* Register Screen */
+    #register-screen {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      flex-direction: column;
+    }
+
+    .register-container {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 3rem;
+      border-radius: 20px;
+      border: 2px solid #ffd700;
+      box-shadow: 0 10px 50px rgba(255, 215, 0, 0.3);
+      animation: slideUp 0.5s ease-out;
+      min-width: 350px;
+    }
+
+    .register-title {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      color: #ffd700;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 2px solid #ffd700;
+      background: rgba(0, 0, 0, 0.5);
+      color: #ffd700;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      transform: scale(1.02);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* Menu Screen */
+    #menu-screen {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      flex-direction: column;
+      padding: 2rem;
+    }
+
+    .menu-header {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 1rem 1.5rem;
+      border-radius: 15px;
+      border: 2px solid #ffd700;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    .profile-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #333, #555);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      border: 2px solid #ffd700;
+    }
+
+    .profile-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #ffd700;
+    }
+
+    .menu-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      margin-top: 6rem;
+    }
+
+    .game-title-main {
+      font-size: 4rem;
+      font-weight: bold;
+      background: linear-gradient(45deg, #ffd700, #ffed4e);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .start-btn {
+      padding: 1.2rem 3rem;
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #000;
+      border: none;
+      border-radius: 15px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 25px rgba(255, 215, 0, 0.5);
+      animation: glow 2s ease-in-out infinite;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 10px 40px rgba(255, 215, 0, 0.7);
+    }
+
+    .menu-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .menu-btn {
+      padding: 0.8rem 1.5rem;
+      background: rgba(0, 0, 0, 0.6);
+      color: #ffd700;
+      border: 2px solid #ffd700;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .menu-btn:hover {
+      background: rgba(255, 215, 0, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+    }
+
+    /* Game Screen */
+    #game-screen {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      flex-direction: column;
+      padding: 2rem;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 2rem;
+    }
+
+    .level-info {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      border: 2px solid #ffd700;
+      font-size: 1.2rem;
+    }
+
+    .puzzle-container {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 3rem;
+      border-radius: 20px;
+      border: 2px solid #ffd700;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 10px 50px rgba(255, 215, 0, 0.3);
+      animation: slideUp 0.5s ease-out;
+    }
+
+    .puzzle-question {
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      line-height: 1.6;
+      color: #fff;
+    }
+
+    .puzzle-answers {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .answer-btn {
+      padding: 1.2rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: #ffd700;
+      border: 2px solid #ffd700;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: right;
+    }
+
+    .answer-btn:hover {
+      background: rgba(255, 215, 0, 0.2);
+      transform: translateX(-5px);
+      box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+    }
+
+    .answer-btn.correct {
+      background: rgba(0, 255, 0, 0.3);
+      border-color: #00ff00;
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    .answer-btn.wrong {
+      background: rgba(255, 0, 0, 0.3);
+      border-color: #ff0000;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .word-puzzle {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .word-btn {
+      padding: 1rem 1.5rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: #ffd700;
+      border: 2px solid #ffd700;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .word-btn:hover {
+      background: rgba(255, 215, 0, 0.2);
+      transform: scale(1.05);
+    }
+
+    .word-btn.selected {
+      background: rgba(255, 215, 0, 0.3);
+      border-color: #ffed4e;
+    }
+
+    .selected-words {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.5);
+      border: 2px solid #ffd700;
+      border-radius: 10px;
+      min-height: 60px;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .check-btn {
+      margin-top: 1.5rem;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .check-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6);
+    }
+
+    .coming-soon {
+      font-size: 1.5rem;
+      color: #999;
+      text-align: center;
+      padding: 3rem;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body><!-- Studio Screen -->
+  <div id="studio-screen" class="screen active">
+   <div class="studio-logo" id="studio-name-display">
+    اسکورت گیم
+   </div>
+   <div class="studio-subtitle">
+    تقدیم می‌کند
+   </div>
+  </div><!-- Loading Screen -->
+  <div id="loading-screen" class="screen">
+   <div class="loading-logo">
+    <svg class="brain-icon" viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs>
+      <lineargradient id="brainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+       <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+       <stop offset="100%" style="stop-color:#ffed4e;stop-opacity:1" />
+      </lineargradient>
+     </defs> <path d="M50 10 C30 10 20 20 20 35 C20 40 22 45 25 48 C22 52 20 57 20 62 C20 75 30 85 45 88 L45 95 L55 95 L55 88 C70 85 80 75 80 62 C80 57 78 52 75 48 C78 45 80 40 80 35 C80 20 70 10 50 10 Z M35 30 C35 27 37 25 40 25 C43 25 45 27 45 30 C45 33 43 35 40 35 C37 35 35 33 35 30 Z M55 30 C55 27 57 25 60 25 C63 25 65 27 65 30 C65 33 63 35 60 35 C57 35 55 33 55 30 Z" fill="url(#brainGradient)" />
+    </svg>
+   </div>
+   <div class="loading-bar-container">
+    <div class="loading-bar" id="loading-bar"></div>
+   </div>
+   <div class="loading-text">
+    در حال بارگذاری...
+   </div>
+  </div><!-- Register Screen -->
+  <div id="register-screen" class="screen">
+   <div class="register-container">
+    <h1 class="register-title" id="game-title-display">مغز شو</h1>
+    <div class="input-group"><label for="username">نام کاربری:</label> <input type="text" id="username" placeholder="نام خود را وارد کنید">
+    </div><button class="btn" onclick="register()">شروع بازی</button>
+   </div>
+  </div><!-- Menu Screen -->
+  <div id="menu-screen" class="screen">
+   <div class="menu-header">
+    <div class="profile-avatar">
+     👤
+    </div>
+    <div class="profile-name" id="player-name">
+     بازیکن
+    </div>
+   </div>
+   <div class="menu-content">
+    <h1 class="game-title-main" id="game-title-main-display">مغز شو</h1><button class="start-btn" onclick="startGame()">شروع بازی</button>
+    <div class="menu-buttons"><button class="menu-btn" onclick="showComingSoon('چالش‌ها')">چالش‌ها</button> <button class="menu-btn" onclick="showComingSoon('چت')">چت</button> <button class="menu-btn" onclick="showComingSoon('فروشگاه')">فروشگاه</button>
+    </div>
+   </div>
+  </div><!-- Game Screen -->
+  <div id="game-screen" class="screen">
+   <div class="game-header">
+    <div class="level-info">
+     مرحله: <span id="current-level">1</span>
+    </div>
+    <div class="level-info">
+     امتیاز: <span id="score">0</span>
+    </div>
+   </div>
+   <div class="puzzle-container" id="puzzle-container"><!-- Puzzle content will be inserted here -->
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      game_title: "مغز شو",
+      studio_name: "اسکورت گیم"
+    };
+
+    let currentUser = null;
+    let currentLevel = 1;
+    let currentScore = 0;
+    let selectedWords = [];
+
+    const puzzles = [
+      {
+        type: "multiple_choice",
+        question: "اگر یک قطار با سرعت 60 کیلومتر بر ساعت حرکت کند، در 2 ساعت چند کیلومتر طی می‌کند؟",
+        answers: ["100 کیلومتر", "120 کیلومتر", "140 کیلومتر", "80 کیلومتر"],
+        correct: 1
+      },
+      {
+        type: "multiple_choice",
+        question: "کدام یک از این کلمات با بقیه متفاوت است؟",
+        answers: ["سیب", "موز", "هویج", "پرتقال"],
+        correct: 2
+      },
+      {
+        type: "word_arrange",
+        question: "کلمات زیر را به ترتیب صحیح بچینید تا یک جمله معنی‌دار بسازید:",
+        words: ["است", "زیبا", "خیلی", "طبیعت"],
+        correct: "طبیعت خیلی زیبا است"
+      },
+      {
+        type: "multiple_choice",
+        question: "اگر A=1، B=2، C=3 باشد، مجموع حروف کلمه 'CAB' چقدر است؟",
+        answers: ["5", "6", "7", "8"],
+        correct: 1
+      },
+      {
+        type: "multiple_choice",
+        question: "کدام عدد در این دنباله جای خالی را پر می‌کند؟ 2، 4، 8، 16، __",
+        answers: ["24", "28", "32", "36"],
+        correct: 2
+      },
+      {
+        type: "word_arrange",
+        question: "این کلمات را مرتب کنید تا نام یک حیوان بسازید:",
+        words: ["ر", "ب", "ش", "ی"],
+        correct: "شیر"
+      },
+      {
+        type: "multiple_choice",
+        question: "اگر همه گل‌ها گیاه هستند و برخی گیاه‌ها سبز هستند، کدام گزینه درست است؟",
+        answers: ["همه گل‌ها سبز هستند", "برخی گل‌ها ممکن است سبز باشند", "هیچ گلی سبز نیست", "همه گیاه‌ها گل هستند"],
+        correct: 1
+      },
+      {
+        type: "multiple_choice",
+        question: "کدام کلمه با الگوی دیگران متفاوت است؟",
+        answers: ["کتاب", "دفتر", "مداد", "میز"],
+        correct: 3
+      }
+    ];
+
+    const dataHandler = {
+      onDataChanged(data) {
+        if (data.length > 0) {
+          const userData = data[0];
+          currentUser = userData;
+          currentLevel = userData.current_level || 1;
+          currentScore = userData.score || 0;
+          
+          if (document.getElementById('player-name')) {
+            document.getElementById('player-name').textContent = userData.username || 'بازیکن';
+          }
+          if (document.getElementById('current-level')) {
+            document.getElementById('current-level').textContent = currentLevel;
+          }
+          if (document.getElementById('score')) {
+            document.getElementById('score').textContent = currentScore;
+          }
+        }
+      }
+    };
+
+    async function init() {
+      const initResult = await window.dataSdk.init(dataHandler);
+      if (!initResult.isOk) {
+        console.error("Failed to initialize data SDK");
+      }
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+      });
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function startStudioAnimation() {
+      setTimeout(() => {
+        showScreen('loading-screen');
+        startLoading();
+      }, 3000);
+    }
+
+    function startLoading() {
+      let progress = 0;
+      const loadingBar = document.getElementById('loading-bar');
+      const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress >= 100) {
+          progress = 100;
+          loadingBar.style.width = '100%';
+          clearInterval(interval);
+          setTimeout(() => {
+            checkUserExists();
+          }, 500);
+        } else {
+          loadingBar.style.width = progress + '%';
+        }
+      }, 200);
+    }
+
+    async function checkUserExists() {
+      if (currentUser) {
+        showScreen('menu-screen');
+      } else {
+        showScreen('register-screen');
+      }
+    }
+
+    async function register() {
+      const username = document.getElementById('username').value.trim();
+      if (!username) {
+        return;
+      }
+
+      const btn = event.target;
+      btn.disabled = true;
+      btn.textContent = 'در حال ثبت...';
+
+      const result = await window.dataSdk.create({
+        username: username,
+        current_level: 1,
+        score: 0,
+        created_at: new Date().toISOString()
+      });
+
+      if (result.isOk) {
+        currentUser = { username, current_level: 1, score: 0 };
+        showScreen('menu-screen');
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'شروع بازی';
+      }
+    }
+
+    function startGame() {
+      showScreen('game-screen');
+      loadPuzzle(currentLevel - 1);
+    }
+
+    function loadPuzzle(index) {
+      if (index >= puzzles.length) {
+        showVictory();
+        return;
+      }
+
+      const puzzle = puzzles[index];
+      const container = document.getElementById('puzzle-container');
+      selectedWords = [];
+
+      if (puzzle.type === 'multiple_choice') {
+        container.innerHTML = `
+          <div class="puzzle-question">${puzzle.question}</div>
+          <div class="puzzle-answers">
+            ${puzzle.answers.map((answer, i) => `
+              <button class="answer-btn" onclick="checkAnswer(${i}, ${puzzle.correct})">${answer}</button>
+            `).join('')}
+          </div>
+        `;
+      } else if (puzzle.type === 'word_arrange') {
+        const shuffledWords = [...puzzle.words].sort(() => Math.random() - 0.5);
+        container.innerHTML = `
+          <div class="puzzle-question">${puzzle.question}</div>
+          <div class="word-puzzle">
+            ${shuffledWords.map((word, i) => `
+              <button class="word-btn" onclick="selectWord('${word}', ${i})">${word}</button>
+            `).join('')}
+          </div>
+          <div class="selected-words" id="selected-words"></div>
+          <button class="check-btn" onclick="checkWordArrangement('${puzzle.correct}')">بررسی</button>
+        `;
+      }
+    }
+
+    function checkAnswer(selected, correct) {
+      const buttons = document.querySelectorAll('.answer-btn');
+      buttons.forEach(btn => btn.style.pointerEvents = 'none');
+
+      if (selected === correct) {
+        buttons[selected].classList.add('correct');
+        currentScore += 10;
+        setTimeout(() => {
+          nextLevel();
+        }, 1000);
+      } else {
+        buttons[selected].classList.add('wrong');
+        setTimeout(() => {
+          currentLevel = 1;
+          currentScore = 0;
+          updateUserProgress();
+          loadPuzzle(0);
+        }, 1000);
+      }
+    }
+
+    function selectWord(word, index) {
+      const btn = event.target;
+      if (btn.classList.contains('selected')) {
+        btn.classList.remove('selected');
+        selectedWords = selectedWords.filter(w => w !== word);
+      } else {
+        btn.classList.add('selected');
+        selectedWords.push(word);
+      }
+      
+      document.getElementById('selected-words').textContent = selectedWords.join(' ');
+    }
+
+    function checkWordArrangement(correct) {
+      const userAnswer = selectedWords.join(' ');
+      const container = document.getElementById('puzzle-container');
+      
+      if (userAnswer === correct) {
+        currentScore += 10;
+        container.style.border = '2px solid #00ff00';
+        setTimeout(() => {
+          container.style.border = '2px solid #ffd700';
+          nextLevel();
+        }, 1000);
+      } else {
+        container.style.border = '2px solid #ff0000';
+        setTimeout(() => {
+          container.style.border = '2px solid #ffd700';
+          currentLevel = 1;
+          currentScore = 0;
+          updateUserProgress();
+          loadPuzzle(0);
+        }, 1000);
+      }
+    }
+
+    function nextLevel() {
+      currentLevel++;
+      updateUserProgress();
+      loadPuzzle(currentLevel - 1);
+    }
+
+    async function updateUserProgress() {
+      if (currentUser && currentUser.__backendId) {
+        document.getElementById('current-level').textContent = currentLevel;
+        document.getElementById('score').textContent = currentScore;
+        
+        const updatedUser = {
+          ...currentUser,
+          current_level: currentLevel,
+          score: currentScore
+        };
+        
+        await window.dataSdk.update(updatedUser);
+      }
+    }
+
+    function showVictory() {
+      const container = document.getElementById('puzzle-container');
+      container.innerHTML = `
+        <div class="puzzle-question" style="font-size: 2.5rem;">🎉 تبریک! 🎉</div>
+        <div class="puzzle-question">شما همه مراحل را با موفقیت پشت سر گذاشتید!</div>
+        <div class="puzzle-question">امتیاز نهایی: ${currentScore}</div>
+        <button class="check-btn" onclick="backToMenu()">بازگشت به منو</button>
+      `;
+    }
+
+    function backToMenu() {
+      showScreen('menu-screen');
+      currentLevel = 1;
+      currentScore = 0;
+      updateUserProgress();
+    }
+
+    function showComingSoon(feature) {
+      const container = document.getElementById('puzzle-container');
+      showScreen('game-screen');
+      container.innerHTML = `
+        <div class="coming-soon">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">🔜</div>
+          <div>${feature}</div>
+          <div style="margin-top: 1rem;">به زودی...</div>
+          <button class="check-btn" style="margin-top: 2rem;" onclick="showScreen('menu-screen')">بازگشت</button>
+        </div>
+      `;
+    }
+
+    async function onConfigChange(config) {
+      const gameTitle = config.game_title || defaultConfig.game_title;
+      const studioName = config.studio_name || defaultConfig.studio_name;
+
+      const gameTitleDisplay = document.getElementById('game-title-display');
+      const gameTitleMainDisplay = document.getElementById('game-title-main-display');
+      const studioNameDisplay = document.getElementById('studio-name-display');
+
+      if (gameTitleDisplay) gameTitleDisplay.textContent = gameTitle;
+      if (gameTitleMainDisplay) gameTitleMainDisplay.textContent = gameTitle;
+      if (studioNameDisplay) studioNameDisplay.textContent = studioName;
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig: defaultConfig,
+        onConfigChange: onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["game_title", config.game_title || defaultConfig.game_title],
+          ["studio_name", config.studio_name || defaultConfig.studio_name]
+        ])
+      });
+    }
+
+    init();
+    startStudioAnimation();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'999d6f74d2cd8069',t:'MTc2MjM1NzA3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
